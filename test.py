@@ -1,178 +1,181 @@
 import streamlit as st
 
 # Configuration de la page
-st.set_page_config(page_title="KFC Sénégal - Smart Menu", layout="wide", page_icon="🍗")
+st.set_page_config(page_title="KFC Sénégal - Aurora Menu", layout="wide", page_icon="🍗")
 
-# --- STYLE CSS POUR LE CONTRASTE ET LE LOOK KFC ---
-# On force le mode clair, le fond blanc, et le texte noir/rouge pour un contraste maximum
+# --- STYLE CSS (ARRIÈRE-PLAN ANIMÉ & CONTRASTE) ---
 st.markdown("""
     <style>
-    /* Forcer le fond blanc sur toute l'application */
+    /* 1. L'animation de l'arrière-plan "Liquide/Aurora" */
+    @keyframes aurora {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* Appliquer l'arrière-plan animé à toute l'application */
     .stApp {
-        background-color: #ffffff !important;
+        /* Dégradé de base : Blanc, Rouge très clair (KFC), Rose pâle */
+        background: linear-gradient(-45deg, #ffffff, #fff0f1, #ffdde0, #ffffff);
+        background-size: 400% 400%;
+        /* Animation fluide qui tourne toutes les 10 secondes pour ne pas fatiguer les yeux */
+        animation: aurora 10s ease infinite;
         color: #000000 !important;
     }
     
-    /* Style des titres KFC (Rouge sur Blanc) */
+    /* 2. Style des Titres KFC */
     h1, h2, h3 {
         color: #e4002b !important;
         font-family: 'Arial Black', sans-serif;
         text-transform: uppercase;
-        margin-bottom: 15px;
+        text-shadow: 1px 1px 2px rgba(255,255,255,0.8); /* Légère ombre pour décoller du fond mouvant */
     }
 
-    /* Cartes produits : fond blanc, bordure rouge douce */
+    /* 3. Cartes produits : Un peu plus opaques pour bien se détacher du fond */
     .product-card {
-        background-color: #ffffff;
-        border: 1px solid #eeeeee;
+        background-color: rgba(255, 255, 255, 0.95); /* Blanc presque opaque */
+        border: 1px solid #f0f0f0;
         padding: 20px;
         border-radius: 15px;
         text-align: center;
         margin-bottom: 25px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1); /* Ombre plus forte pour l'effet de relief */
         transition: 0.3s;
     }
     
     .product-card:hover {
-        box-shadow: 0 10px 20px rgba(228, 0, 43, 0.1);
-        border-color: #e4002b;
+        transform: translateY(-5px); /* Petit saut au survol */
+        box-shadow: 0 12px 24px rgba(228, 0, 43, 0.2);
     }
-
-    /* Nom du produit : Noir profond pour la lisibilité */
+    
+    /* 4. Texte et Prix */
     .item-name {
         color: #000000 !important;
         font-weight: bold;
-        font-size: 1.3rem;
-        margin-top: 15px;
-        margin-bottom: 5px;
+        font-size: 1.2rem;
+        margin-top: 10px;
     }
     
-    /* Prix : Rouge KFC bien visible */
     .item-price {
         color: #e4002b !important;
-        font-size: 1.5rem;
-        font-weight: 900;
-        margin-bottom: 15px;
+        font-size: 1.4rem;
+        font-weight: 800;
     }
 
-    /* Bouton "Ajouter" Rouge KFC */
+    /* 5. Boutons de commande */
     div.stButton > button:first-child {
         background-color: #e4002b;
         color: white;
+        border-radius: 8px;
         border: none;
         width: 100%;
-        border-radius: 8px;
         font-weight: bold;
-        padding: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
-    
-    /* Section Boissons : Texte noir sur fond blanc */
-    .drink-text {
-        color: #000000 !important;
-        font-size: 1.1rem;
+    div.stButton > button:first-child:hover {
+        background-color: #b30021;
+    }
+
+    /* Ajustement de la sidebar pour qu'elle reste lisible */
+    [data-testid="stSidebar"] {
+        background-color: rgba(255, 255, 255, 0.9) !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- EN-TÊTE AVEC LOGO ---
-st.image("https://upload.wikimedia.org/wikipedia/sco/b/bf/KFC_logo.svg", width=120)
-st.title("🔴 MENU KFC SEDIMA")
-st.markdown("### LE GOÛT ORIGINAL EST ICI, AU SÉNÉGAL !")
+# --- EN-TÊTE ---
+# J'ai ajouté une colonne vide pour centrer légèrement le logo sur grand écran
+col_space, col_logo, col_title = st.columns([1, 2, 8])
+with col_logo:
+    st.image("https://upload.wikimedia.org/wikipedia/sco/b/bf/KFC_logo.svg", width=120)
+with col_title:
+    st.title("KFC SEDIMA - SÉNÉGAL")
+    st.markdown("##### Menu Digital Interactif")
 st.divider()
 
-# --- DONNÉES DU MENU (Vos liens officiels + Noms corrigés) ---
-# J'ai remis les bons noms en face des bonnes images selon votre photo.
-menu_items = [
+# --- SECTION PRINCIPALE (PLATS) ---
+col1, col2 = st.columns(2)
+
+categories = [
     {
-        "titre": "A LA CARTE", # Correspond à l'image du poulet seul
-        "img": "https://kfcsenegal.sn/storage/48/categorie-photo-14-08-2023vVRNN1692022970.png",
-        "prix": "1500 F"
+        "nom": "NOS BURGERS", 
+        "prix": "À partir de 3000 F", 
+        "img": "https://kfcsenegal.sn/storage/50/categorie-photo-14-08-2023Gm0UZ1692023013.jpg"
     },
     {
-        "titre": "NOS WINGS", # Correspond à l'image des ailes épicées
-        "img": "https://kfcsenegal.sn/storage/49/categorie-photo-14-08-20238CZyR1692024550.jpg",
-        "prix": "3500 F"
+        "nom": "NOS WINGS", 
+        "prix": "À partir de 3500 F", 
+        "img": "https://kfcsenegal.sn/storage/49/categorie-photo-14-08-20238CZyR1692024550.jpg"
     },
     {
-        "titre": "NOS BURGERS", # Correspond à l'image du Zinger/Colonel
-        "img": "https://kfcsenegal.sn/storage/50/categorie-photo-14-08-2023Gm0UZ1692023013.jpg",
-        "prix": "3000 F"
+        "nom": "A LA CARTE", 
+        "prix": "À partir de 1500 F", 
+        "img": "https://kfcsenegal.sn/storage/48/categorie-photo-14-08-2023vVRNN1692022970.png"
     },
     {
-        "titre": "NOS BOISSONS & ACCOMP.", # Correspond à l'image des frites/boissons
-        "img": "https://kfcsenegal.sn/storage/25/categorie-photo-14-08-2023yJlhj1692022268.jpg",
-        "prix": "800 F"
+        "nom": "ACCOMPAGNEMENTS", 
+        "prix": "À partir de 1000 F", 
+        "img": "https://kfcsenegal.sn/storage/25/categorie-photo-14-08-2023yJlhj1692022268.jpg"
     }
 ]
 
-# --- AFFICHAGE EN GRILLE (2 colonnes pour mobile-first) ---
-col1, col2 = st.columns(2, gap="medium")
-
-for i, item in enumerate(menu_items):
-    current_col = col1 if i % 2 == 0 else col2
-    with current_col:
+for i, item in enumerate(categories):
+    with (col1 if i % 2 == 0 else col2):
         st.markdown(f"""
             <div class="product-card">
                 <img src="{item['img']}" style="width:100%; border-radius:10px;">
-                <div class="item-name">{item['titre']}</div>
-                <div class="item-price">{item['prix']} <small>CFA</small></div>
+                <div class="item-name">{item['nom']}</div>
+                <div class="item-price">{item['prix']}</div>
             </div>
         """, unsafe_allow_html=True)
-        # Bouton factice pour la démo
-        if st.button(f"COMMANDER {item['titre']}", key=f"btn_{i}"):
-            st.success(f"Ajout de {item['titre']} au panier !")
+        st.button(f"Voir les détails {item['nom']}", key=f"cat_{i}")
 
-# --- SECTION BOISSONS DÉTAILLÉE (Avec vos nouveaux liens) ---
+# --- SECTION BOISSONS (AVEC VOS LIENS SPÉCIFIQUES) ---
+st.markdown("<br><br>", unsafe_allow_html=True)
 st.divider()
 st.header("🥤 NOS BOISSONS FRAÎCHES")
 
-col_b1, col_b2, col_b3 = st.columns(3)
+b_col1, b_col2, b_col3 = st.columns(3)
 
-# Boisson 1 : 7Up (Votre nouveau lien)
-with col_b1:
+# 1. 7UP
+with b_col1:
     st.markdown(f"""
         <div class="product-card">
-            <img src="https://www.edenpizza.fr/wp-content/uploads/2019/11/7up-33cl.png" style="height:150px; object-fit: contain;">
+            <img src="https://www.edenpizza.fr/wp-content/uploads/2019/11/7up-33cl.png" style="height:180px; object-fit: contain;">
             <div class="item-name">7UP / SEVEN</div>
             <div class="item-price">800 F</div>
         </div>
     """, unsafe_allow_html=True)
-    if not st.image("https://www.edenpizza.fr/wp-content/uploads/2019/11/7up-33cl.png", width=1): # Hack pour tester le chargement
-        st.caption("7Up 33cl")
 
-# Boisson 2 : Coca-Cola (Votre nouveau lien)
-with col_b2:
+# 2. COCA-COLA
+with b_col2:
     st.markdown(f"""
         <div class="product-card">
-            <img src="https://www.23pizzastreet.com/web/cache/images/product/6d1696bee7835dd96f75f90fc20b01bf-gfgdf-368.png" style="height:150px; object-fit: contain;">
+            <img src="https://www.23pizzastreet.com/web/cache/images/product/6d1696bee7835dd96f75f90fc20b01bf-gfgdf-368.png" style="height:180px; object-fit: contain;">
             <div class="item-name">COCA-COLA</div>
             <div class="item-price">800 F</div>
         </div>
     """, unsafe_allow_html=True)
-    if not st.image("https://www.23pizzastreet.com/web/cache/images/product/6d1696bee7835dd96f75f90fc20b01bf-gfgdf-368.png", width=1):
-        st.caption("Coca-Cola 33cl")
 
-# Boisson 3 : Autre/Eau (Par défaut)
-with col_b3:
+# 3. AUTRES (PRESSEA)
+with b_col3:
     st.markdown(f"""
         <div class="product-card">
-            <img src="https://www.sn.coca-cola.com/content/dam/journey/sn/fr/brands/coca-cola/coca-cola-original-250ml.png" style="height:150px; object-fit: contain; filter: grayscale(100%);">
-            <div class="item-name">AUTRES BOISSONS</div>
+            <img src="https://cdn.prod.website-files.com/66d72c4d3a8971a008db2846/66d72c4d3a8971a008db2945_Pressea-hero%20(1).png" style="height:180px; object-fit: contain;">
+            <div class="item-name">PRESSEA / EAU</div>
             <div class="item-price">800 F</div>
         </div>
     """, unsafe_allow_html=True)
-    st.caption("Pepsi, Eau, Fanta...")
 
-# --- BARRE LATÉRALE (SIDEBAR) ---
+# --- SIDEBAR (PANIER) ---
 with st.sidebar:
     st.image("https://upload.wikimedia.org/wikipedia/sco/b/bf/KFC_logo.svg", width=60)
-    st.header("🛒 MON PANIER")
-    st.write("Votre panier est vide pour le moment.")
+    st.markdown("### 🛒 Mon Panier")
+    st.write("Votre panier est vide.")
     st.divider()
-    st.warning("📶 Pas de connexion ?")
-    st.write("Les prix affichés ici sont garantis en caisse du restaurant SEDIMA.")
+    st.caption("Faites glisser pour commander")
 
 # --- FOOTER ---
 st.markdown("<br><br>", unsafe_allow_html=True)
 st.divider()
-st.markdown("<p style='text-align: center; color: #666;'>KFC Sénégal © 2026 - SEDIMA Group. Déployé sur Streamlit Cloud.</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #666; font-size: 0.9rem;'>KFC Sénégal © 2026 - SEDIMA Group. Distribué via Streamlit Cloud.</p>", unsafe_allow_html=True)
