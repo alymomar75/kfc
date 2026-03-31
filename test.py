@@ -178,4 +178,4 @@ with st.sidebar:
 # --- FOOTER ---
 st.markdown("<br><br>", unsafe_allow_html=True)
 st.divider()
-st.markdown("<p style='text-align: center; color: #666; font-size: 0.9rem;'>KFC Sénégal © 2026 - SEDIMA Group. Distribué via Streamlit Cloud.</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #666; font-size: 0.9rem;'>ceci n'es qu'à but académique dans le cadre de ma formation est sera supprimé ! en aucun cas cest a but commercial ni lucratif ! je ne suis pas kfc © 2026 - Distribué via Streamlit Cloud.</p>", unsafe_allow_html=True)
