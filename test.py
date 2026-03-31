@@ -1,105 +1,71 @@
 import streamlit as st
 
-# Configuration de la page
-st.set_page_config(page_title="KFC Sénégal - Menu", layout="wide", page_icon="🍗")
+# Configuration de la page style "Menu Board"
+st.set_page_config(page_title="KFC Digital Menu", layout="wide")
 
-# --- STYLE CSS ---
+# --- CSS PERSONNALISÉ (ROUGE KFC) ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Roboto:wght@400;700&display=swap');
-    
-    html, body, [class*="css"] {
-        font-family: 'Roboto', sans-serif;
-    }
-    h1, h2, h3 {
-        font-family: 'Oswald', sans-serif;
-        text-transform: uppercase;
-    }
-    .main {
-        background-color: #ffffff;
-    }
-    .price-tag {
-        color: #e4002b;
-        font-size: 24px;
-        font-weight: bold;
-        margin-bottom: 0px;
-    }
-    .product-name {
-        font-size: 18px;
-        font-weight: bold;
-        margin-top: 10px;
-    }
-    .stButton>button {
-        background-color: #e4002b;
-        color: white;
-        border-radius: 0px;
-        font-weight: bold;
-        border: none;
-        width: 100%;
-    }
+    .main { background-color: #ffffff; }
+    h1, h2, h3 { color: #e4002b; font-family: 'Arial Black', sans-serif; text-transform: uppercase; }
+    .price { color: #e4002b; font-weight: bold; font-size: 20px; margin-top: -10px; }
+    .item-card { border: 1px solid #eee; padding: 10px; border-radius: 15px; margin-bottom: 20px; background: #fff; box-shadow: 2px 2px 5px rgba(0,0,0,0.05); }
     </style>
     """, unsafe_allow_html=True)
 
-# --- HEADER ---
-col_logo, col_title = st.columns([1, 4])
-with col_logo:
-    st.image("https://upload.wikimedia.org/wikipedia/sco/b/bf/KFC_logo.svg", width=100)
-with col_title:
-    st.title("MENU KFC - SEDIMA SÉNÉGAL")
+st.image("https://upload.wikimedia.org/wikipedia/sco/b/bf/KFC_logo.svg", width=80)
+st.title("Menu KFC - Commande Express")
 
-st.divider()
-
-# --- DONNÉES DU MENU (Lien images officiels) ---
+# --- BASE DE DONNÉES DU MENU (Liens Internet) ---
 menu = {
-    "A-LA-CARTE": [
-        {"nom": "2 Pieces Original Recipe", "prix": 2200, "img": "https://pwa-api.kfc.ca/api/cms/v1/assets/kfc-canada/storage/products/hero/2-pc-chicken-box.png"},
-        {"nom": "1 Piece Original Recipe", "prix": 1500, "img": "https://pwa-api.kfc.ca/api/cms/v1/assets/kfc-canada/storage/products/hero/1-pc-chicken.png"},
-        {"nom": "Purée de Pommes de Terre", "prix": 1000, "img": "https://pwa-api.kfc.ca/api/cms/v1/assets/kfc-canada/storage/products/hero/individual-mashed-potatoes-gravy.png"},
-        {"nom": "Mini Pain", "prix": 750, "img": "https://pwa-api.kfc.ca/api/cms/v1/assets/kfc-canada/storage/products/hero/individual-butter-bread.png"}
+    "POULET & WINGS": [
+        {"nom": "KFC Hot Wings (8pcs)", "prix": 3500, "img": "https://pwa-api.kfc.ca/api/cms/v1/assets/kfc-canada/storage/products/hero/8-hot-wings.png"},
+        {"nom": "2 Pièces Poulet Original", "prix": 2200, "img": "https://pwa-api.kfc.ca/api/cms/v1/assets/kfc-canada/storage/products/hero/2-pc-chicken-box.png"}
     ],
-    "BURGERS": [
-        {"nom": "Colonel Burger (Repas)", "prix": 4500, "img": "https://pwa-api.kfc.ca/api/cms/v1/assets/kfc-canada/storage/products/hero/kentucky-flatbread-sandwich.png"},
-        {"nom": "Zinger Burger (Repas)", "prix": 4500, "img": "https://pwa-api.kfc.ca/api/cms/v1/assets/kfc-canada/storage/products/hero/zinger-sandwich.png"}
+    "ACCOMPAGNEMENTS & FROMAGE": [
+        {"nom": "Frites au Fromage", "prix": 1800, "img": "https://images.ctfassets.net/wt71v9imv975/5vR5v8X9v0QG6uO8S8k8u8/7b69c4c7b8d8b1c4e1b8e8b1c4e1b8e8/Cheese_Fries.png"},
+        {"nom": "Potatoes Croustillantes", "prix": 1200, "img": "https://pwa-api.kfc.ca/api/cms/v1/assets/kfc-canada/storage/products/hero/individual-fries.png"}
     ],
-    "WINGS ÉPICÉS": [
-        {"nom": "8 pc Wings", "prix": 3500, "img": "https://pwa-api.kfc.ca/api/cms/v1/assets/kfc-canada/storage/products/hero/8-hot-wings.png"},
-        {"nom": "4 pc Wings", "prix": 2000, "img": "https://pwa-api.kfc.ca/api/cms/v1/assets/kfc-canada/storage/products/hero/4-hot-wings.png"}
+    "BOISSONS FRAÎCHES": [
+        {"nom": "Pepsi / Coca-Cola (50cl)", "prix": 800, "img": "https://pwa-api.kfc.ca/api/cms/v1/assets/kfc-canada/storage/products/hero/pepsi.png"},
+        {"nom": "7Up / Schweppes", "prix": 800, "img": "https://pwa-api.kfc.ca/api/cms/v1/assets/kfc-canada/storage/products/hero/7-up.png"}
     ]
 }
 
-# --- AFFICHAGE EN COLONNES (Style Menu Board) ---
+# --- AFFICHAGE DYNAMIQUE ---
 col1, col2 = st.columns(2)
 
-# Colonne de Gauche : A-LA-CARTE
+# Colonne de Gauche : Poulet et Accompagnements
 with col1:
-    st.header("🍗 A-LA-CARTE")
-    for item in menu["A-LA-CARTE"]:
-        c_img, c_txt = st.columns([1, 1.5])
-        with c_img:
-            st.image(item["img"], use_container_width=True)
-        with c_txt:
-            st.markdown(f"<p class='product-name'>{item['nom']}</p>", unsafe_allow_html=True)
-            st.markdown(f"<p class='price-tag'>{item['prix']} <small>CFA</small></p>", unsafe_allow_html=True)
-            st.button("Ajouter", key=item['nom'])
+    st.header("🍗 Le Poulet")
+    for item in menu["POULET & WINGS"]:
+        with st.container():
+            c1, c2 = st.columns([1, 2])
+            c1.image(item["img"], use_container_width=True)
+            c2.subheader(item["nom"])
+            c2.markdown(f"<p class='price'>{item['prix']} FCFA</p>", unsafe_allow_html=True)
+            c2.button("Ajouter au panier", key=item["nom"])
 
-# Colonne de Droite : BURGERS & WINGS
+    st.header("🍟 Accompagnements")
+    for item in menu["ACCOMPAGNEMENTS & FROMAGE"]:
+        with st.container():
+            c1, c2 = st.columns([1, 2])
+            c1.image(item["img"], use_container_width=True)
+            c2.subheader(item["nom"])
+            c2.markdown(f"<p class='price'>{item['prix']} FCFA</p>", unsafe_allow_html=True)
+            c2.button("Ajouter au panier", key=item["nom"])
+
+# Colonne de Droite : Boissons et Panier
 with col2:
-    st.header("🍔 BURGERS")
-    for item in menu["BURGERS"]:
-        c_img, c_txt = st.columns([1, 1.5])
-        with c_img:
-            st.image(item["img"], use_container_width=True)
-        with c_txt:
-            st.markdown(f"<p class='product-name'>{item['nom']}</p>", unsafe_allow_html=True)
-            st.markdown(f"<p class='price-tag'>{item['prix']} <small>CFA</small></p>", unsafe_allow_html=True)
-            st.button("Ajouter", key=item['nom'])
-            
-    st.header("🌶️ WINGS ÉPICÉS")
-    for item in menu["WINGS ÉPICÉS"]:
-        c_img, c_txt = st.columns([1, 1.5])
-        with c_img:
-            st.image(item["img"], use_container_width=True)
-        with c_txt:
-            st.markdown(f"<p class='product-name'>{item['nom']}</p>", unsafe_allow_html=True)
-            st.markdown(f"<p class='price-tag'>{item['prix']} <small>CFA</small></p>", unsafe_allow_html=True)
-            st.button("Ajouter", key=item['nom'])
+    st.header("🥤 Boissons")
+    for item in menu["BOISSONS FRAÎCHES"]:
+        with st.container():
+            c1, c2 = st.columns([1, 2])
+            c1.image(item["img"], use_container_width=True)
+            c2.subheader(item["nom"])
+            c2.markdown(f"<p class='price'>{item['prix']} FCFA</p>", unsafe_allow_html=True)
+            c2.button("Ajouter au panier", key=item["nom"])
+
+    st.divider()
+    st.sidebar.title("🛒 Votre Commande")
+    st.sidebar.info("Sélectionnez vos produits pour voir le récapitulatif ici.")
