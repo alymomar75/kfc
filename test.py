@@ -1,81 +1,103 @@
 import streamlit as st
-import streamlit.components.v1 as components
 
-# 1. Configuration de la page
-st.set_page_config(page_title="KFC Sénégal - Smart Menu", layout="wide")
+# Configuration de la page pour forcer le mode clair
+st.set_page_config(page_title="KFC Sénégal Menu", layout="wide")
 
-# 2. Script de Détection de Connexion (JavaScript)
-# Ce script tourne dans le navigateur du client
-components.html("""
-<script>
-    function updateOnlineStatus() {
-        if (navigator.onLine) {
-            console.log("Mode En Ligne");
-        } else {
-            // Si hors ligne, on affiche une alerte ou on modifie l'UI
-            alert("⚠️ Mode Hors-Ligne activé : Affichage du menu simplifié (Prix garantis)");
-        }
-    }
-    window.addEventListener('online', updateOnlineStatus);
-    window.addEventListener('offline', updateOnlineStatus);
-    updateOnlineStatus();
-</script>
-""", height=0)
-
-# 3. CSS Personnalisé (Forcer le mode clair et le rouge KFC)
+# --- CSS POUR LE CONTRASTE ET LE STYLE ---
 st.markdown("""
     <style>
-    .stApp { background-color: white !important; color: black !important; }
-    .kfc-card { border: 2px solid #e4002b; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
-    .price { color: #e4002b; font-weight: bold; font-size: 22px; }
-    .offline-banner { background-color: #ffcccc; padding: 10px; border-radius: 5px; text-align: center; color: #b30021; font-weight: bold; }
+    /* Forcer le fond de page en gris très clair pour faire ressortir les cartes */
+    .stApp {
+        background-color: #f8f9fa !important;
+    }
+    
+    /* Cartes produits : fond blanc pur, texte noir pour un contraste 100% */
+    .product-card {
+        background-color: #ffffff;
+        border: 2px solid #e4002b;
+        padding: 15px;
+        border-radius: 12px;
+        text-align: center;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .item-name {
+        color: #000000 !important; /* Noir pur */
+        font-weight: bold;
+        font-size: 1.2rem;
+        margin-top: 10px;
+    }
+    
+    .item-price {
+        color: #e4002b !important; /* Rouge KFC */
+        font-size: 1.4rem;
+        font-weight: 900;
+    }
+
+    /* Style spécifique pour la section Boissons */
+    .drink-section {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 15px;
+        border-top: 5px solid #e4002b;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# 4. Logique de détection via Streamlit (Simulation)
-# Note : Streamlit s'exécute côté serveur, donc on utilise un bouton de secours
-# ou la détection JS ci-dessus pour informer l'utilisateur.
+# --- ENTÊTE ---
+st.image("https://upload.wikimedia.org/wikipedia/sco/b/bf/KFC_logo.svg", width=100)
+st.title("🔴 MENU KFC SEDIMA")
 
-# --- HEADER ---
-st.image("https://upload.wikimedia.org/wikipedia/sco/b/bf/KFC_logo.svg", width=80)
-st.title("KFC SEDIMA - SÉNÉGAL")
-
-# 5. CONTENU DU MENU
-# On définit les données une seule fois
-menu_data = [
-    {"nom": "Zinger Burger", "prix": "3000 FCFA", "img": "https://kfcsenegal.sn/storage/50/categorie-photo-14-08-2023Gm0UZ1692023013.jpg"},
-    {"nom": "8 Pcs Wings", "prix": "3500 FCFA", "img": "https://kfcsenegal.sn/storage/49/categorie-photo-14-08-20238CZyR1692024550.jpg"},
-    {"nom": "2 Pcs Poulet", "prix": "2200 FCFA", "img": "https://kfcsenegal.sn/storage/48/categorie-photo-14-08-2023vVRNN1692022970.png"}
-]
-
-# 6. AFFICHAGE HYBRIDE
-# Si le navigateur est hors-ligne, les images ne chargeront pas. 
-# On prévoit donc un affichage textuel robuste.
-
-st.markdown("---")
-
+# --- SECTION 1 : LES PLATS (VOS LIENS) ---
+st.header("🍗 NOS CATÉGORIES")
 col1, col2 = st.columns(2)
 
-for i, item in enumerate(menu_data):
-    target_col = col1 if i % 2 == 0 else col2
-    with target_col:
-        # Conteneur qui contient à la fois l'image (si possible) et le texte (garanti)
+categories = [
+    {"n": "BURGERS", "p": "3000 F", "img": "https://kfcsenegal.sn/storage/50/categorie-photo-14-08-2023Gm0UZ1692023013.jpg"},
+    {"n": "WINGS", "p": "3500 F", "img": "https://kfcsenegal.sn/storage/49/categorie-photo-14-08-20238CZyR1692024550.jpg"},
+    {"n": "POULET", "p": "1500 F", "img": "https://kfcsenegal.sn/storage/48/categorie-photo-14-08-2023vVRNN1692022970.png"},
+    {"n": "FRITES & ACCOMP.", "p": "1000 F", "img": "https://kfcsenegal.sn/storage/25/categorie-photo-14-08-2023yJlhj1692022268.jpg"}
+]
+
+for i, cat in enumerate(categories):
+    with (col1 if i % 2 == 0 else col2):
         st.markdown(f"""
-            <div class="kfc-card">
-                <img src="{item['img']}" style="width:100%; border-radius:5px; onerror="this.style.display='none'">
-                <h3>{item['nom']}</h3>
-                <p class="price">{item['prix']}</p>
-                <p style="font-size: 0.8em; color: gray;">Disponible même hors-connexion</p>
+            <div class="product-card">
+                <img src="{cat['img']}" style="width:100%; border-radius:8px;">
+                <div class="item-name">{cat['n']}</div>
+                <div class="item-price">{cat['p']}</div>
             </div>
         """, unsafe_allow_html=True)
 
-# 7. SECTION BOISSONS (Texte pur pour le hors-ligne)
-st.header("🥤 Boissons & Desserts")
-st.table({
-    "Produit": ["Coca-Cola / Pepsi", "Schweppes / 7Up", "Eau Minérale", "Potatoes"],
-    "Prix": ["800 FCFA", "800 FCFA", "500 FCFA", "1200 FCFA"]
-})
+# --- SECTION 2 : LES BOISSONS (AVEC PHOTOS) ---
+st.markdown("---")
+st.header("🥤 BOISSONS FRAÎCHES")
 
-# 8. FOOTER DE SECOURS
-st.sidebar.header("Options de secours")
-st.sidebar.write("Si les photos ne s'affichent pas, c'est que vous êtes en mode hors-ligne. Les prix affichés restent valables en caisse.")
+# Liens d'images directs pour les boissons
+boissons = [
+    {"n": "COCA-COLA", "p": "800 F", "img": "https://www.sn.coca-cola.com/content/dam/journey/sn/fr/brands/coca-cola/coca-cola-original-250ml.png"},
+    {"n": "PEPSI", "p": "800 F", "img": "https://atlas-content-cdn.pixelsquid.com/stock-images/pepsi-soda-can-0mE0E67-600.jpg"},
+    {"n": "7UP / SEVEN", "p": "800 F", "img": "https://www.7up.com/images/products/7up-can.png"}
+]
+
+b_col1, b_col2, b_col3 = st.columns(3)
+cols = [b_col1, b_col2, b_col3]
+
+for i, b in enumerate(boissons):
+    with cols[i]:
+        st.markdown(f"""
+            <div class="product-card">
+                <img src="{b['img']}" style="height:150px; object-fit: contain;">
+                <div class="item-name">{b['n']}</div>
+                <div class="item-price">{b['p']}</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+# --- SOLUTION POUR LE "HORS-LIGNE" ---
+st.sidebar.title("ℹ️ INFOS PRATIQUES")
+st.sidebar.error("**PAS DE CONNEXION ?**")
+st.sidebar.write("""
+Si vous n'avez pas internet, demandez le **code Wi-Fi** du restaurant ou téléchargez le menu une fois pour toutes :
+""")
+st.sidebar.button("Télécharger le Menu PDF")
