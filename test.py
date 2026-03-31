@@ -1,71 +1,81 @@
 import streamlit as st
+import streamlit.components.v1 as components
 
-# Configuration de la page style "Menu Board"
-st.set_page_config(page_title="KFC Digital Menu", layout="wide")
+# 1. Configuration de la page
+st.set_page_config(page_title="KFC Sénégal - Smart Menu", layout="wide")
 
-# --- CSS PERSONNALISÉ (ROUGE KFC) ---
+# 2. Script de Détection de Connexion (JavaScript)
+# Ce script tourne dans le navigateur du client
+components.html("""
+<script>
+    function updateOnlineStatus() {
+        if (navigator.onLine) {
+            console.log("Mode En Ligne");
+        } else {
+            // Si hors ligne, on affiche une alerte ou on modifie l'UI
+            alert("⚠️ Mode Hors-Ligne activé : Affichage du menu simplifié (Prix garantis)");
+        }
+    }
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    updateOnlineStatus();
+</script>
+""", height=0)
+
+# 3. CSS Personnalisé (Forcer le mode clair et le rouge KFC)
 st.markdown("""
     <style>
-    .main { background-color: #ffffff; }
-    h1, h2, h3 { color: #e4002b; font-family: 'Arial Black', sans-serif; text-transform: uppercase; }
-    .price { color: #e4002b; font-weight: bold; font-size: 20px; margin-top: -10px; }
-    .item-card { border: 1px solid #eee; padding: 10px; border-radius: 15px; margin-bottom: 20px; background: #fff; box-shadow: 2px 2px 5px rgba(0,0,0,0.05); }
+    .stApp { background-color: white !important; color: black !important; }
+    .kfc-card { border: 2px solid #e4002b; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
+    .price { color: #e4002b; font-weight: bold; font-size: 22px; }
+    .offline-banner { background-color: #ffcccc; padding: 10px; border-radius: 5px; text-align: center; color: #b30021; font-weight: bold; }
     </style>
     """, unsafe_allow_html=True)
 
+# 4. Logique de détection via Streamlit (Simulation)
+# Note : Streamlit s'exécute côté serveur, donc on utilise un bouton de secours
+# ou la détection JS ci-dessus pour informer l'utilisateur.
+
+# --- HEADER ---
 st.image("https://upload.wikimedia.org/wikipedia/sco/b/bf/KFC_logo.svg", width=80)
-st.title("Menu KFC - Commande Express")
+st.title("KFC SEDIMA - SÉNÉGAL")
 
-# --- BASE DE DONNÉES DU MENU (Liens Internet) ---
-menu = {
-    "POULET & WINGS": [
-        {"nom": "KFC Hot Wings (8pcs)", "prix": 3500, "img": "https://pwa-api.kfc.ca/api/cms/v1/assets/kfc-canada/storage/products/hero/8-hot-wings.png"},
-        {"nom": "2 Pièces Poulet Original", "prix": 2200, "img": "https://pwa-api.kfc.ca/api/cms/v1/assets/kfc-canada/storage/products/hero/2-pc-chicken-box.png"}
-    ],
-    "ACCOMPAGNEMENTS & FROMAGE": [
-        {"nom": "Frites au Fromage", "prix": 1800, "img": "https://images.ctfassets.net/wt71v9imv975/5vR5v8X9v0QG6uO8S8k8u8/7b69c4c7b8d8b1c4e1b8e8b1c4e1b8e8/Cheese_Fries.png"},
-        {"nom": "Potatoes Croustillantes", "prix": 1200, "img": "https://pwa-api.kfc.ca/api/cms/v1/assets/kfc-canada/storage/products/hero/individual-fries.png"}
-    ],
-    "BOISSONS FRAÎCHES": [
-        {"nom": "Pepsi / Coca-Cola (50cl)", "prix": 800, "img": "https://pwa-api.kfc.ca/api/cms/v1/assets/kfc-canada/storage/products/hero/pepsi.png"},
-        {"nom": "7Up / Schweppes", "prix": 800, "img": "https://pwa-api.kfc.ca/api/cms/v1/assets/kfc-canada/storage/products/hero/7-up.png"}
-    ]
-}
+# 5. CONTENU DU MENU
+# On définit les données une seule fois
+menu_data = [
+    {"nom": "Zinger Burger", "prix": "3000 FCFA", "img": "https://kfcsenegal.sn/storage/50/categorie-photo-14-08-2023Gm0UZ1692023013.jpg"},
+    {"nom": "8 Pcs Wings", "prix": "3500 FCFA", "img": "https://kfcsenegal.sn/storage/49/categorie-photo-14-08-20238CZyR1692024550.jpg"},
+    {"nom": "2 Pcs Poulet", "prix": "2200 FCFA", "img": "https://kfcsenegal.sn/storage/48/categorie-photo-14-08-2023vVRNN1692022970.png"}
+]
 
-# --- AFFICHAGE DYNAMIQUE ---
+# 6. AFFICHAGE HYBRIDE
+# Si le navigateur est hors-ligne, les images ne chargeront pas. 
+# On prévoit donc un affichage textuel robuste.
+
+st.markdown("---")
+
 col1, col2 = st.columns(2)
 
-# Colonne de Gauche : Poulet et Accompagnements
-with col1:
-    st.header("🍗 Le Poulet")
-    for item in menu["POULET & WINGS"]:
-        with st.container():
-            c1, c2 = st.columns([1, 2])
-            c1.image(item["img"], use_container_width=True)
-            c2.subheader(item["nom"])
-            c2.markdown(f"<p class='price'>{item['prix']} FCFA</p>", unsafe_allow_html=True)
-            c2.button("Ajouter au panier", key=item["nom"])
+for i, item in enumerate(menu_data):
+    target_col = col1 if i % 2 == 0 else col2
+    with target_col:
+        # Conteneur qui contient à la fois l'image (si possible) et le texte (garanti)
+        st.markdown(f"""
+            <div class="kfc-card">
+                <img src="{item['img']}" style="width:100%; border-radius:5px; onerror="this.style.display='none'">
+                <h3>{item['nom']}</h3>
+                <p class="price">{item['prix']}</p>
+                <p style="font-size: 0.8em; color: gray;">Disponible même hors-connexion</p>
+            </div>
+        """, unsafe_allow_html=True)
 
-    st.header("🍟 Accompagnements")
-    for item in menu["ACCOMPAGNEMENTS & FROMAGE"]:
-        with st.container():
-            c1, c2 = st.columns([1, 2])
-            c1.image(item["img"], use_container_width=True)
-            c2.subheader(item["nom"])
-            c2.markdown(f"<p class='price'>{item['prix']} FCFA</p>", unsafe_allow_html=True)
-            c2.button("Ajouter au panier", key=item["nom"])
+# 7. SECTION BOISSONS (Texte pur pour le hors-ligne)
+st.header("🥤 Boissons & Desserts")
+st.table({
+    "Produit": ["Coca-Cola / Pepsi", "Schweppes / 7Up", "Eau Minérale", "Potatoes"],
+    "Prix": ["800 FCFA", "800 FCFA", "500 FCFA", "1200 FCFA"]
+})
 
-# Colonne de Droite : Boissons et Panier
-with col2:
-    st.header("🥤 Boissons")
-    for item in menu["BOISSONS FRAÎCHES"]:
-        with st.container():
-            c1, c2 = st.columns([1, 2])
-            c1.image(item["img"], use_container_width=True)
-            c2.subheader(item["nom"])
-            c2.markdown(f"<p class='price'>{item['prix']} FCFA</p>", unsafe_allow_html=True)
-            c2.button("Ajouter au panier", key=item["nom"])
-
-    st.divider()
-    st.sidebar.title("🛒 Votre Commande")
-    st.sidebar.info("Sélectionnez vos produits pour voir le récapitulatif ici.")
+# 8. FOOTER DE SECOURS
+st.sidebar.header("Options de secours")
+st.sidebar.write("Si les photos ne s'affichent pas, c'est que vous êtes en mode hors-ligne. Les prix affichés restent valables en caisse.")
