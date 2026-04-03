@@ -98,7 +98,7 @@ col1, col2 = st.columns(2)
 
 categories = [
     {
-        "nom": "NOS BURGERS", 
+        "nom": "WINGS + MENU", 
         "prix": "À partir de 3000 F", 
         "img": "https://kfcsenegal.sn/storage/50/categorie-photo-14-08-2023Gm0UZ1692023013.jpg"
     },
@@ -108,7 +108,7 @@ categories = [
         "img": "https://kfcsenegal.sn/storage/49/categorie-photo-14-08-20238CZyR1692024550.jpg"
     },
     {
-        "nom": "A LA CARTE", 
+        "nom": "NOS BURGERS", 
         "prix": "À partir de 1500 F", 
         "img": "https://kfcsenegal.sn/storage/48/categorie-photo-14-08-2023vVRNN1692022970.png"
     },
